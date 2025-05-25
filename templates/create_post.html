@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Create New Post - Blog{% endblock %}
+
+{% block content %}
+    <div class="create-post">
+        <h1 class="mb-20">Create New Post</h1>
+        
+        <form class="post-form">
+            <div class="form-group">
+                <label for="title">Title</label>
+                <input type="text" id="title" name="title" class="form-input" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="author">Author</label>
+                <input type="text" id="author" name="author" class="form-input" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="category">Category</label>
+                <input type="text" id="category" name="category" class="form-input">
+            </div>
+            
+            <div class="form-group">
+                <label for="tags">Tags (comma separated)</label>
+                <input type="text" id="tags" name="tags" class="form-input">
+            </div>
+            
+            <div class="form-group">
+                <label for="content">Content</label>
+                <textarea id="content" name="content" class="form-textarea" required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="preview">Preview</label>
+                <div id="preview" class="preview-content"></div>
+            </div>
+            
+            <button type="submit" class="form-button">Publish Post</button>
+        </form>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const postForm = document.querySelector('.post-form');
+        const contentInput = document.getElementById('content');
+        const previewDiv = document.getElementById('preview');
+        
+        // Update preview as user types
+        contentInput.addEventListener('input', function() {
+            previewDiv.innerHTML = contentInput.value;
+        });
+        
+        // Handle form submission
+        postForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('title').value.trim();
+            const author = document.getElementById('author').value.trim();
+            const category = document.getElementById('category').value.trim();
+            const tagsInput = document.getElementById('tags').value.trim();
+            const content = document.getElementById('content').value.trim();
+            
+            // Validation
+            if (!title) {
+                showFormError('Please enter a title');
+                return;
+            }
+            
+            if (!author) {
+                showFormError('Please enter an author name');
+                return;
+            }
+            
+            if (!content) {
+                showFormError('Please enter content');
+                return;
+            }
+            
+            // Prepare tags array
+            const tags = tagsInput ? tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
+            
+            try {
+                const response = await fetch('/api/blogs', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        title,
+                        author,
+                        content,
+                        category: category || null,
+                        tags
+                    }),
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Post was successfully created
+                    showFormSuccess('Your post was published successfully!');
+                    
+                    // Redirect to the new post after a brief delay
+                    setTimeout(() => {
+                        window.location.href = `/blog/${data.id}`;
+                    }, 1500);
+                } else {
+                    // There was an error
+                    showFormError(data.detail || 'Failed to publish post');
+                }
+            } catch (error) {
+                showFormError('An error occurred while publishing your post');
+                console.error('Error publishing post:', error);
+            }
+        });
+        
+        function showFormError(message) {
+            const alertElement = document.createElement('div');
+            alertElement.className = 'alert alert-error';
+            alertElement.textContent = message;
+            
+            postForm.insertBefore(alertElement, postForm.firstChild);
+            
+            setTimeout(() => {
+                alertElement.remove();
+            }, 5000);
+        }
+        
+        function showFormSuccess(message) {
+            const alertElement = document.createElement('div');
+            alertElement.className = 'alert alert-success';
+            alertElement.textContent = message;
+            
+            postForm.insertBefore(alertElement, postForm.firstChild);
+            
+            setTimeout(() => {
+                alertElement.remove();
+            }, 5000);
+        }
+    });
+</script>
+{% endblock %}
