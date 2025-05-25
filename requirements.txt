@@ -8,3 +8,4 @@ alembic
 python-multipart
 pytest
 httpx
+markdown

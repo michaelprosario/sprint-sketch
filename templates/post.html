@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }} - Blog{% endblock %}
+
+{% block content %}
+    <div class="post-detailed">
+        <div class="post">
+            <div class="post-header">
+                <h1 class="post-title">{{ post.title }}</h1>
+                <div class="post-meta">
+                    <span class="post-author">By {{ post.author }}</span>
+                    <span class="post-date">{{ post.date.strftime('%b %d, %Y') }}</span>
+                    {% if post.category %}
+                        <span class="post-category">in {{ post.category }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="post-content">
+                <div class="post-full-content">
+                    {{ post.content | safe }}
+                </div>
+                
+                {% if post.tags %}
+                    <div class="post-tags">
+                        {% for tag in post.tags %}
+                            <span class="tag">{{ tag }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="comments-section">
+        <h2 class="comments-title">
+            <span class="comments-count">{{ comments | length }} Comment{% if comments | length != 1 %}s{% endif %}</span>
+        </h2>
+        
+        <div class="comments-list">
+            {% if comments %}
+                {% for comment in comments %}
+                    <div class="comment">
+                        <div class="comment-meta">
+                            <span class="comment-author">{{ comment.name }}</span>
+                            <span class="comment-date">{{ comment.created_at.strftime('%b %d, %Y at %H:%M') }}</span>
+                        </div>
+                        <div class="comment-body">
+                            {{ comment.message }}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No comments yet. Be the first to comment!</p>
+            {% endif %}
+        </div>
+        
+        <div class="comment-form-container">
+            <h3>Leave a Comment</h3>
+            <form class="comment-form">
+                <input type="hidden" id="post_id" name="post_id" value="{{ post.id }}">
+                
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" name="name" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="message">Comment</label>
+                    <textarea id="message" name="message" class="form-textarea" required></textarea>
+                </div>
+                
+                <button type="submit" class="form-button">Submit Comment</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
