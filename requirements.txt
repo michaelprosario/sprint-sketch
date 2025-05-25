@@ -1,4 +1,10 @@
 pandas 
 openpyxl
-anthropic
-google-genai
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+alembic
+python-multipart
+pytest
+httpx

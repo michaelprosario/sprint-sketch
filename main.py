@@ -120,7 +120,7 @@ def test_llm():
 
 def getTeamStandards():
     try:
-        with open("team-standards-brief-dotnet.md", "r") as file:
+        with open("team-standards-brief.md", "r") as file:
             standards = file.read()
         return standards
     except FileNotFoundError:
