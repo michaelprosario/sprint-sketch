@@ -1,52 +1,32 @@
 
 from typing import Optional
-import anthropic
+from google import genai
 import os
 import pandas as pd
 import sys
 
-client = anthropic.Anthropic(
-    # This will automatically use the ANTHROPIC_API_KEY environment variable
-    # or you can pass the key directly: api_key="your-api-key-here"
-)
+
+# configure constants 
+STORY_NAME = "storyName"
+STORY = "story"
+DONE_CONDITIONS = "doneConditions"
+WORK_ITEM_ID = "workItemId"
+
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+if not GOOGLE_API_KEY:
+    raise ValueError("GOOGLE_API_KEY environment variable is not set. (gemini api key)")
+
+client = genai.Client(api_key=GOOGLE_API_KEY)
 
 def generate_text(
     prompt: str,
-    model: str = "claude-sonnet-4-20250514",
-    max_tokens: int = 1000,
-    temperature: float = 0.7,
-    system_prompt: Optional[str] = None
 ) -> str:
-    """
-    Generate text using Claude API
-    
-    Args:
-        prompt: The user's input prompt
-        model: Claude model to use
-        max_tokens: Maximum tokens in response
-        temperature: Controls randomness (0.0 = deterministic, 1.0 = very random)
-        system_prompt: Optional system message to set Claude's behavior
-    
-    Returns:
-        Generated text response
-    """
     try:
-        # Prepare messages
-        messages = [{"role": "user", "content": prompt}]
-        
-        # Create the request
-        response = client.messages.create(
-            model=model,
-            max_tokens=max_tokens,
-            temperature=temperature,
-            system=system_prompt if system_prompt else "",
-            messages=messages
+        response = client.models.generate_content(
+            model="gemini-2.0-flash", contents=prompt
         )
-        
-        return response.content[0].text
-        
-    except anthropic.APIError as e:
-        return f"API Error: {e}"
+
+        return response.text        
     except Exception as e:
         return f"Unexpected error: {e}"
 
@@ -65,7 +45,7 @@ def read_sprint_backlog(file_path):
         df = pd.read_excel(file_path)
         
         # Verify required columns exist
-        required_columns = ['storyName', 'story', 'doneConditions', 'workItemId']
+        required_columns = [STORY_NAME, STORY, DONE_CONDITIONS, WORK_ITEM_ID]
         missing_columns = [col for col in required_columns if col not in df.columns]
         
         if missing_columns:
@@ -102,14 +82,14 @@ def sketchSprintTasks(backlog_items, teamStandards):
     
     for i, item in enumerate(backlog_items, 1):
         print(f"\n--- Item #{i} ---")
-        print(f"Work Item ID: {item.get('workItemId', 'N/A')}")
-        print(f"Story Name: {item.get('storyName', 'N/A')}")
-        print(f"Story: {item.get('story', 'N/A')}")
-        print(f"Done Conditions: {item.get('doneConditions', 'N/A')}")
+        print(f"Work Item ID: {item.get(WORK_ITEM_ID, 'N/A')}")
+        print(f"Story Name: {item.get(STORY_NAME, 'N/A')}")
+        print(f"Story: {item.get(STORY, 'N/A')}")
+        print(f"Done Conditions: {item.get(DONE_CONDITIONS, 'N/A')}")
         print("-" * 40)
 
-        storyName = item.get('storyName', 'N/A')
-        doneConditions = item.get('doneConditions', 'N/A')
+        storyName = item.get(STORY_NAME, 'N/A')
+        doneConditions = item.get(DONE_CONDITIONS, 'N/A')
         # create prompt
         prompt = f'''
         ## Context
@@ -126,9 +106,8 @@ def sketchSprintTasks(backlog_items, teamStandards):
         ## Intent
         Please generate user story tasks for the above user story and done conditions.
         The tasks should be clear, actionable, and follow the team standards.
-        You do not need to include code samples, just the tasks.
-        Keep tasks clear and 1 or 2 sentences long.
-        The tasks should be in the format of a bullet list.
+        Return the tasks as bulleted list.
+        Return responses in markdown format.
         '''
 
         print("===============")
@@ -141,7 +120,7 @@ def test_llm():
 
 def getTeamStandards():
     try:
-        with open("team-standards-brief.md", "r") as file:
+        with open("team-standards-brief-dotnet.md", "r") as file:
             standards = file.read()
         return standards
     except FileNotFoundError:

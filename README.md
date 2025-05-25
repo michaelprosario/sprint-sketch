@@ -11,7 +11,7 @@ A tool for processing sprint backlog data and generating markdown output of spri
 
 2. Set up your environment variable:
    ```bash
-   export ANTHROPIC_API_KEY=your_api_key_here
+   export GOOGLE_API_KEY=your_api_key_here
    ```
 
 ## Usage
@@ -27,5 +27,8 @@ This will process your sprint backlog and generate the output in `out.md`.
 ## Requirements
 
 - Python 3.x
-- Anthropic API key
+- Gemini API key
 - Excel file with sprint backlog data (`backlog.xlsx`)
+
+
+Note: There's also a claude version of the script. ( see main_claude.py )
