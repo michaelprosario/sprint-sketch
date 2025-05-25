@@ -16,7 +16,7 @@ A tool for processing sprint backlog data and generating markdown output of spri
 
 ## Usage
 
-1. Replace `backlog.xlsx` with your sprint backlog data
+1. Replace `backlog.xlsx` with your sprint backlog data.  In main.py, configure field names at the top of the file.
 2. Run the application:
    ```bash
    python main.py > out.md
