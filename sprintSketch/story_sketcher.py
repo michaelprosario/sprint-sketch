@@ -10,12 +10,11 @@ Following Clean Architecture:
 
 import sys
 import os
-from datetime import datetime
 
 # Add current directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from core.models import Scope
+from core.models import StoryGenerationResult
 from core.services import StoryGenerationService
 from infra.llm_provider import ClaudeLLMProvider
 from infra.file_provider import MarkdownFileProvider
@@ -70,13 +69,11 @@ def main():
                 print(f"  - {error}")
             return 1
         
-        # Format output
-        output_content = _format_output(scope, result.stories)
-        
         # Write to file
+        output_content = result.markdown
         print(f"Writing stories to: {output_file}")
         if file_provider.write_stories(output_file, output_content):
-            print(f"✓ Successfully generated {len(result.stories)} user stories!")
+            print("✓ User stories generated successfully!")
             print()
             print("=" * 70)
             print("GENERATED STORIES")
@@ -100,47 +97,6 @@ def main():
         traceback.print_exc()
         return 1
 
-
-def _format_output(scope: Scope, stories) -> str:
-    """Format the output markdown document"""
-    
-    lines = [
-        f"# User Stories - {scope.title}",
-        "",
-        f"**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
-        "",
-        "## Scope",
-        "",
-        f"**Description:** {scope.description}",
-        "",
-        "### Goals",
-        ""
-    ]
-    
-    for goal in scope.goals:
-        lines.append(f"- {goal}")
-    
-    lines.extend(["", "### Constraints", ""])
-    
-    if scope.constraints:
-        for constraint in scope.constraints:
-            lines.append(f"- {constraint}")
-    else:
-        lines.append("- None specified")
-    
-    lines.extend([
-        "",
-        "## User Stories",
-        "",
-        "> **INVEST Principles:** Independent | Negotiable | Valuable | Estimable | Small | Testable",
-        ""
-    ])
-    
-    for i, story in enumerate(stories, 1):
-        lines.append(str(story))
-        lines.append("")
-    
-    return "\n".join(lines)
 
 
 if __name__ == "__main__":

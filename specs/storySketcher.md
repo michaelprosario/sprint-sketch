@@ -15,3 +15,10 @@
 Amend sprintSketch/story_sketcher.py
 - remove input for the number of user stories
 - the program should document a practical number of user stories for the scope
+
+===
+
+Amend /workspaces/sprint-sketch/sprintSketch/story_sketcher.py
+- system does not need to parse llm output into user story objects
+- the service can return llm output in markdown format
+- the parsing logic currently in place is causing bugs
