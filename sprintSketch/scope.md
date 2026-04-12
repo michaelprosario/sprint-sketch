@@ -1,8 +1,7 @@
-
 ## Description
-A simple web-based platform for blogging
+A simple web-based platform for RSS reader
 
-## Constraints
-- Must be deployable within 2 months
-- Use open-source tools where possible
-- Technology stack: Python backend, Angular frontend
+Clarify front-end effort
+Clarify back-end effort
+Ensure we have stories for continuous integration
+Ensure we have stories for continuous deployment
