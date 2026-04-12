@@ -19,20 +19,19 @@ class StoryGenerationService:
         """
         self.llm_provider = llm_provider
     
-    def generate_stories(self, scope: Scope, num_stories: int = 5) -> StoryGenerationResult:
+    def generate_stories(self, scope: Scope) -> StoryGenerationResult:
         """
         Core business logic: generate user stories from a scope.
         
         Args:
             scope: The scope containing project goals and context
-            num_stories: Number of stories to generate
             
         Returns:
             StoryGenerationResult with success status and stories
         """
         try:
             # Build the prompt using the scope context
-            prompt = self._build_generation_prompt(scope, num_stories)
+            prompt = self._build_generation_prompt(scope)
             
             # Use the LLM provider (injected dependency)
             response = self.llm_provider.generate(prompt)
@@ -62,14 +61,14 @@ class StoryGenerationService:
                 errors=[str(e)]
             )
     
-    def _build_generation_prompt(self, scope: Scope, num_stories: int) -> str:
+    def _build_generation_prompt(self, scope: Scope) -> str:
         """
         Build the LLM prompt following the LLM Prompt Design spec.
         Layers: System (constitution) + Developer (context) + User (request)
         """
         system_layer = self._get_system_prompt()
         developer_layer = self._get_developer_context(scope)
-        user_layer = self._get_user_request(num_stories)
+        user_layer = self._get_user_request()
         
         return f"""{system_layer}
 
@@ -110,9 +109,10 @@ Constraints:
 
 Output Format: Return stories as a structured list, one per block, clearly labeled."""
     
-    def _get_user_request(self, num_stories: int) -> str:
+    def _get_user_request(self) -> str:
         """Layer 3: User Layer - The actual request"""
-        return f"""Please generate exactly {num_stories} user stories for this project scope.
+        return """Please generate a practical number of user stories for this project scope.
+Consider the scope and goals to determine how many stories are needed — typically between 5 and 10, but use your judgment to cover the scope appropriately without padding.
 Each story must follow INVEST principles and include acceptance criteria."""
     
     def _parse_stories(self, response: str) -> List[UserStory]:

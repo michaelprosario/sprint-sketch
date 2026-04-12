@@ -37,14 +37,6 @@ def main():
     if not scope_file:
         scope_file = "scope.md"
     
-    # Get number of stories
-    try:
-        num_stories = input("Number of user stories to generate (default: 5): ").strip()
-        num_stories = int(num_stories) if num_stories else 5
-    except ValueError:
-        print("Invalid number. Using default of 5 stories.")
-        num_stories = 5
-    
     # Get output file
     output_file = input("Output file path (default: output.md): ").strip()
     if not output_file:
@@ -69,8 +61,8 @@ def main():
         story_service = StoryGenerationService(llm_provider)
         
         # Generate stories
-        print(f"Generating {num_stories} user stories...")
-        result = story_service.generate_stories(scope, num_stories)
+        print("Generating user stories...")
+        result = story_service.generate_stories(scope)
         
         if not result.success:
             print(f"✗ Error: {result.message}")
